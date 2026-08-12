@@ -146,9 +146,8 @@ Each scenario produces:
 - `state-machine.mmd` — state model;
 - `timeline.html` — offline visual timeline.
 
-## Implementation documentation
+## Documentation
 
-- [Implementation plan](PLAN.md)
 - [Architecture](docs/architecture.md)
 - [Domain model and invariants](docs/domain-model.md)
 - [Scenario specification](docs/scenario-format.md)
