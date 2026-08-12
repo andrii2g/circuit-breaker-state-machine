@@ -1,0 +1,32 @@
+{
+  "schemaVersion": 1,
+  "name": "long-outage",
+  "description": "A sustained outage where the breaker should avoid most failed downstream calls.",
+  "duration": "00:01:30",
+  "breaker": {
+    "failureThreshold": 3,
+    "openDuration": "00:00:10"
+  },
+  "requests": {
+    "start": "00:00:00",
+    "interval": "00:00:01",
+    "count": 90
+  },
+  "availability": [
+    {
+      "start": "00:00:00",
+      "end": "00:00:10",
+      "status": "healthy"
+    },
+    {
+      "start": "00:00:10",
+      "end": "00:00:50",
+      "status": "failing"
+    },
+    {
+      "start": "00:00:50",
+      "end": "00:01:30",
+      "status": "healthy"
+    }
+  ]
+}

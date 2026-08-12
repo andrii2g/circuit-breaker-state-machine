@@ -1,0 +1,52 @@
+{
+  "schemaVersion": 1,
+  "name": "flapping",
+  "description": "Alternating healthy and failing windows to demonstrate repeated breaker transitions.",
+  "duration": "00:01:00",
+  "breaker": {
+    "failureThreshold": 2,
+    "openDuration": "00:00:06"
+  },
+  "requests": {
+    "start": "00:00:00",
+    "interval": "00:00:01",
+    "count": 60
+  },
+  "availability": [
+    {
+      "start": "00:00:00",
+      "end": "00:00:10",
+      "status": "healthy"
+    },
+    {
+      "start": "00:00:10",
+      "end": "00:00:18",
+      "status": "failing"
+    },
+    {
+      "start": "00:00:18",
+      "end": "00:00:26",
+      "status": "healthy"
+    },
+    {
+      "start": "00:00:26",
+      "end": "00:00:36",
+      "status": "failing"
+    },
+    {
+      "start": "00:00:36",
+      "end": "00:00:44",
+      "status": "healthy"
+    },
+    {
+      "start": "00:00:44",
+      "end": "00:00:52",
+      "status": "failing"
+    },
+    {
+      "start": "00:00:52",
+      "end": "00:01:00",
+      "status": "healthy"
+    }
+  ]
+}

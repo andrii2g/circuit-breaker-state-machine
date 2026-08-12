@@ -1,0 +1,32 @@
+{
+  "schemaVersion": 1,
+  "name": "short-outage",
+  "description": "A short outage that demonstrates recovery-latency trade-offs.",
+  "duration": "00:00:40",
+  "breaker": {
+    "failureThreshold": 3,
+    "openDuration": "00:00:10"
+  },
+  "requests": {
+    "start": "00:00:00",
+    "interval": "00:00:01",
+    "count": 40
+  },
+  "availability": [
+    {
+      "start": "00:00:00",
+      "end": "00:00:10",
+      "status": "healthy"
+    },
+    {
+      "start": "00:00:10",
+      "end": "00:00:15",
+      "status": "failing"
+    },
+    {
+      "start": "00:00:15",
+      "end": "00:00:40",
+      "status": "healthy"
+    }
+  ]
+}
