@@ -89,6 +89,9 @@ public static class ArtifactWriter
             var end = index + 1 < stateStarts.Count ? stateStarts[index + 1].Start : scenario.Duration;
             return $"<rect class='{item.State}' x='{X(item.Start):F2}' y='70' width='{X(end - item.Start):F2}' height='28'><title>{item.State}: {item.Start:c} to {end:c}</title></rect>";
         }));
+        var probes = string.Join("", result.BreakerProtected.Events.Where(e => e.Type == SimulationEventType.HalfOpenProbeStarted)
+            .Select(e => $"<polygon class='Probe' points='{X(e.Elapsed):F2},130 {X(e.Elapsed) + 7:F2},137 {X(e.Elapsed):F2},144 {X(e.Elapsed) - 7:F2},137'><title>{WebUtility.HtmlEncode(e.RequestId)}: half-open probe at {e.Elapsed:c}</title></polygon>"));
+
 
         var transitionList = string.Join("", transitions.Select(e => $"<li><time>{e.Elapsed:c}</time> — {e.StateBefore} → {e.StateAfter}</li>"));
         var eventRows = string.Join("", result.BreakerProtected.Events.Select(e =>
@@ -98,18 +101,30 @@ public static class ArtifactWriter
         return $$"""
             <!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
             <title>{{WebUtility.HtmlEncode(scenario.Name)}} circuit-breaker timeline</title><style>
-            :root{color-scheme:light;font-family:system-ui,sans-serif;background:#f7f8fa;color:#15202b}body{max-width:1180px;margin:auto;padding:2rem}h1,h2{line-height:1.2}.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:1rem}.card{background:white;border:1px solid #ccd3da;border-radius:8px;padding:1rem}.card strong{display:block;font-size:1.5rem}svg{background:white;border:1px solid #ccd3da;width:100%;height:auto}.healthy,.Closed{fill:#3a9d5d}.failing,.Open{fill:#c94b40}.HalfOpen{fill:#d88b19}.RequestSucceeded{fill:#147d3f}.RequestFailed{fill:#b42318}.RequestRejected{fill:#6b4ba1;stroke:white;stroke-width:2}.lane{font-size:14px}.legend span{margin-right:1rem}table{width:100%;border-collapse:collapse;background:white}th,td{text-align:left;border-bottom:1px solid #ddd;padding:.45rem;vertical-align:top}code{background:#e9edf1;padding:.1rem .3rem}small{color:#4a5968}
+            :root{color-scheme:light;font-family:system-ui,sans-serif;background:#f7f8fa;color:#15202b}body{max-width:1180px;margin:auto;padding:2rem}h1,h2{line-height:1.2}.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:1rem}.card{background:white;border:1px solid #ccd3da;border-radius:8px;padding:1rem}.card strong{display:block;font-size:1.5rem}svg{background:white;border:1px solid #ccd3da;width:100%;height:auto}.healthy,.Closed{fill:#3a9d5d}.failing,.Open{fill:#c94b40}.HalfOpen{fill:#d88b19}.Probe{fill:#ffd166;stroke:#15202b;stroke-width:2}.RequestSucceeded{fill:#147d3f}.RequestFailed{fill:#b42318}.RequestRejected{fill:#6b4ba1;stroke:white;stroke-width:2}.lane{font-size:14px}.legend span{margin-right:1rem}table{width:100%;border-collapse:collapse;background:white}th,td{text-align:left;border-bottom:1px solid #ddd;padding:.45rem;vertical-align:top}code{background:#e9edf1;padding:.1rem .3rem}small{color:#4a5968}
             </style></head><body><main><h1>{{WebUtility.HtmlEncode(scenario.Name)}}</h1><p>{{WebUtility.HtmlEncode(scenario.Description)}}</p>
             <section aria-labelledby="configuration"><h2 id="configuration">Configuration</h2><p>Duration <code>{{scenario.Duration:c}}</code>; failure threshold <code>{{scenario.Breaker.FailureThreshold}}</code>; open duration <code>{{scenario.Breaker.OpenDuration:c}}</code>; requests <code>{{scenario.Requests.Count}}</code>.</p></section>
             <section aria-labelledby="metrics"><h2 id="metrics">Metrics</h2><div class="cards">
+            <div class="card"><small>Baseline received</small><strong>{{result.Baseline.Metrics.ReceivedRequests}}</strong></div>
             <div class="card"><small>Baseline attempts</small><strong>{{result.Baseline.Metrics.DownstreamAttempts}}</strong></div>
+            <div class="card"><small>Baseline successes</small><strong>{{result.Baseline.Metrics.SuccessfulAttempts}}</strong></div>
+            <div class="card"><small>Baseline failures</small><strong>{{result.Baseline.Metrics.FailedAttempts}}</strong></div>
+            <div class="card"><small>Protected received</small><strong>{{result.BreakerProtected.Metrics.ReceivedRequests}}</strong></div>
             <div class="card"><small>Protected attempts</small><strong>{{result.BreakerProtected.Metrics.DownstreamAttempts}}</strong></div>
+            <div class="card"><small>Protected successes</small><strong>{{result.BreakerProtected.Metrics.SuccessfulAttempts}}</strong></div>
+            <div class="card"><small>Protected failures</small><strong>{{result.BreakerProtected.Metrics.FailedAttempts}}</strong></div>
             <div class="card"><small>Rejected requests</small><strong>{{result.BreakerProtected.Metrics.RejectedRequests}}</strong></div>
+            <div class="card"><small>Breaker openings</small><strong>{{result.BreakerProtected.Metrics.BreakerOpenings}}</strong></div>
+            <div class="card"><small>Half-open probes</small><strong>{{result.BreakerProtected.Metrics.HalfOpenProbes}}</strong></div>
+            <div class="card"><small>Successful probes</small><strong>{{result.BreakerProtected.Metrics.SuccessfulProbes}}</strong></div>
+            <div class="card"><small>Failed probes</small><strong>{{result.BreakerProtected.Metrics.FailedProbes}}</strong></div>
+            <div class="card"><small>Total attempts avoided</small><strong>{{result.Comparison.DownstreamAttemptsAvoided}}</strong></div>
+            <div class="card"><small>Outage attempts avoided</small><strong>{{result.Comparison.OutageAttemptsAvoided}}</strong></div>
             <div class="card"><small>Outage load avoided</small><strong>{{avoided}}</strong></div>
             <div class="card"><small>Recovery latency</small><strong>{{recovery}}</strong></div></div></section>
             <section aria-labelledby="timeline"><h2 id="timeline">Shared timeline</h2><p class="legend"><span>■ Healthy</span><span>■ Failing</span><span>● Success</span><span>● Failure</span><span>● Rejected</span></p>
             <svg viewBox="0 0 1000 180" role="img" aria-labelledby="timeline-title timeline-desc"><title id="timeline-title">Dependency, breaker state, and protected request timeline</title><desc id="timeline-desc">Availability windows, breaker states, and every protected request outcome aligned to scenario time.</desc>
-            <text class="lane" x="8" y="16">Downstream availability</text>{{availability}}<text class="lane" x="8" y="66">Breaker state</text>{{stateSegments}}<text class="lane" x="8" y="120">Protected request outcomes</text>{{requests}}</svg></section>
+            <text class="lane" x="8" y="16">Downstream availability</text>{{availability}}<text class="lane" x="8" y="66">Breaker state</text>{{stateSegments}}<text class="lane" x="8" y="120">Protected request outcomes (diamond = half-open probe)</text>{{probes}}{{requests}}</svg></section>
             <section aria-labelledby="transitions"><h2 id="transitions">State transitions</h2><ol>{{transitionList}}</ol></section>
             <section aria-labelledby="events"><h2 id="events">Protected event log</h2><table><thead><tr><th>#</th><th>Time</th><th>Event</th><th>Request</th><th>Detail</th></tr></thead><tbody>{{eventRows}}</tbody></table></section>
             <section aria-labelledby="definitions"><h2 id="definitions">Metric definitions</h2><p><strong>Outage load avoided</strong> is baseline attempts minus protected attempts scheduled inside failing availability windows, divided by baseline outage attempts.</p><p><strong>Recovery latency</strong> is the interval from the final actual downstream recovery to the first successful protected request at or after it.</p></section>
