@@ -1,0 +1,9 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="../CircuitBreaker.Core/CircuitBreaker.Core.csproj" />
+    <ProjectReference Include="../CircuitBreaker.Simulation/CircuitBreaker.Simulation.csproj" />
+  </ItemGroup>
+</Project>
